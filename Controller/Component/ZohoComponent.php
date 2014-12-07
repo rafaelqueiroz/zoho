@@ -98,8 +98,35 @@ class ZohoComponent extends Component {
 			throw new CakeException ("You must set Zoho credentials.");
 		}
 
-		$this->Http = new HttpSocket();
 		$this->authToken = $this->Session->read($this->authTokenSessionKey);
+		$this->Http = new HttpSocket();
+	}
+
+	/**
+	 * Insert a records.
+	 * You can use the getMyRecords method to fetch data by the owner of the Authentication token specified in the API request.
+	 *
+	 * @param  	  string $scope
+	 *
+	 * @see 	  https://www.zoho.com/crm/help/api/getmyrecords.html
+	 * @return 	  array
+	 */
+	public function getMyRecords($scope) {
+
+		$url = $this->_makeUrl($scope, __FUNCTION__);
+		$params  = array('authtoken' => $this->authToken, 'scope' => 'crmapi');
+		$request = $this->_makeRequest($url, $params);
+
+		if (!$request->isOk()) {
+			throw new CakeException('Invalid request.');
+		}
+
+		$response = $this->_parseRequest($request->body);
+		if (!empty ($response['response']['error'])) {
+			throw new CakeException($response['response']['error']['message']);
+		}
+
+		return $response['response'];
 	}
 
 	/**
@@ -121,7 +148,7 @@ class ZohoComponent extends Component {
 			throw new CakeException('Invalid scope.');
 		}
 
-		$url = "{$this->apiUrls['crm']}{$scope}/insertRecords";
+		$url = $this->_makeUrl($scope, __FUNCTION__);
 		$xmlData = $this->_makeXMLDataToInsertRecords($scope, $data);
 
 		$_params = array('authtoken' => $this->authToken, 'xmlData' => $xmlData);
@@ -132,7 +159,7 @@ class ZohoComponent extends Component {
 			throw new CakeException('Invalid request.');
 		}
 
-		$response = Xml::toArray(Xml::build($request->body));
+		$response = $this->_parseRequest($request->body);
 		if (!empty ($response['response']['error'])) {
 			throw new CakeException($response['response']['error']['message']);
 		}
@@ -237,8 +264,29 @@ class ZohoComponent extends Component {
 		if (!in_array($method, array('get', 'post', 'put', 'delete'))) {
 			return false;
 		}
-		
+
 		return $this->Http->$method($url, http_build_query($params));
+	}
+
+	/**
+	 * Make a URL.
+	 *
+	 * @var string $scope
+	 * @var string $function
+	 * @return string
+	 */
+	protected function _makeUrl($scope, $function) {
+		return "{$this->apiUrls['crm']}{$scope}/{$function}";
+	}
+
+	/**
+	 * Parse a request.
+	 *
+	 * @var string $body
+	 * @return array
+	 */
+	protected function _parseRequest($body) {
+		return Xml::toArray(Xml::build($body));
 	}
 
 }
