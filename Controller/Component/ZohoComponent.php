@@ -115,7 +115,7 @@ class ZohoComponent extends Component {
 	public function getMyRecords($scope, $params = array()) {
 
 		$url = $this->_makeUrl($scope, __FUNCTION__);
-		$_params = array('authtoken' => $this->authToken, 'scope' => 'crmapi');]
+		$_params = array('authtoken' => $this->authToken, 'scope' => 'crmapi');
 		$params  = array_merge($params, $_params);
 		$request = $this->_makeRequest($url, $params);
 
@@ -130,6 +130,35 @@ class ZohoComponent extends Component {
 
 		return $response['response'];
 	}
+
+	/**
+	 * Getter of Records.
+	 * You can use the getRecords method to fetch all users data specified in the API request.
+	 *
+	 * @param  	  string $scope
+	 * @param 	  array  $params
+	 *
+	 * @see 	  https://www.zoho.com/crm/help/api/getrecords.html
+	 * @return 	  array
+	 */
+	public function getRecords($scope, $params = array()) {
+
+		$url = $this->_makeUrl($scope, __FUNCTION__);
+		$_params = array('authtoken' => $this->authToken, 'scope' => 'crmapi');
+		$params  = array_merge($params, $_params);
+		$request = $this->_makeRequest($url, $params);
+
+		if (!$request->isOk()) {
+			throw new CakeException('Invalid request.');
+		}
+
+		$response = $this->_parseRequest($request->body);
+		if (!empty ($response['response']['error'])) {
+			throw new CakeException($response['response']['error']['message']);
+		}
+
+		return $response['response'];
+	}	
 
 	/**
 	 * Insert a records.
