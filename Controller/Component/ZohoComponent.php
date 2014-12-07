@@ -113,6 +113,12 @@ class ZohoComponent extends Component {
 	 * @return 	  array
 	 */
 	public function getMyRecords($scope, $params = array()) {
+		if (!$this->authToken) {
+			$this->_generateAuthToken();
+		}
+		if (!$this->_validateScopeInsertRecords($scope)) {
+			throw new CakeException('Invalid scope.');
+		}		
 
 		$url = $this->_makeUrl($scope, __FUNCTION__);
 		$_params = array('authtoken' => $this->authToken, 'scope' => 'crmapi');
@@ -142,6 +148,12 @@ class ZohoComponent extends Component {
 	 * @return 	  array
 	 */
 	public function getRecords($scope, $params = array()) {
+		if (!$this->authToken) {
+			$this->_generateAuthToken();
+		}
+		if (!$this->_validateScopeInsertRecords($scope)) {
+			throw new CakeException('Invalid scope.');
+		}		
 
 		$url = $this->_makeUrl($scope, __FUNCTION__);
 		$_params = array('authtoken' => $this->authToken, 'scope' => 'crmapi');
@@ -159,6 +171,45 @@ class ZohoComponent extends Component {
 
 		return $response['response'];
 	}	
+
+	/**
+	 * Getter of Record By ID.
+	 * You can use this method to retrieve individual records by record ID.
+	 *
+	 * @param  	  int    $id
+	 * @param 	  string $scope
+	 *
+	 * @see 	  https://www.zoho.com/crm/help/api/getrecords.html
+	 * @return 	  array
+	 */
+	public function getRecordById($id, $scope = 'Leads') {
+		if (!$this->authToken) {
+			$this->_generateAuthToken();
+		}
+		if (!$this->_validateScopeInsertRecords($scope)) {
+			throw new CakeException('Invalid scope.');
+		}		
+
+		$url = $this->_makeUrl($scope, __FUNCTION__);
+		$params = array(
+			'authtoken' => $this->authToken, 
+			'id' => $id,
+			'scope' => 'crmapi'
+		);
+		$request = $this->_makeRequest($url, $params);
+
+		if (!$request->isOk()) {
+			throw new CakeException('Invalid request.');
+		}
+
+		$response = $this->_parseRequest($request->body);
+		if (!empty ($response['response']['error'])) {
+			throw new CakeException($response['response']['error']['message']);
+		}
+
+		return $response['response'];
+	}	
+
 
 	/**
 	 * Insert a records.
