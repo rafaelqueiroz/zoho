@@ -156,17 +156,23 @@ class ZohoComponent extends Component {
 	 */
 	protected function _makeXMLDataToInsertRecords($scope, $data) {
 		$xml = Xml::build("<{$scope}></{$scope}>", array('return' => 'domdocument'));
-		
-		$row = $xml->createElement('row');
-		$row->setAttribute('no', 1);
-		
-		foreach ($data as $key => $value) {
-			$child = $xml->createElement('FL', $value);	
-			$child->setAttribute('val', $key);			
 
-			$row->appendChild($child);
+		if (!is_array(current($data))) {
+			$data = array($data);
 		}
-		$xml->firstChild->appendChild($row);
+		
+		foreach ($data as $no => $row) {
+			$el = $xml->createElement('row');
+			$el->setAttribute('no', ++$no);
+			foreach ($row as $key => $value) {
+				$child = $xml->createElement('FL', $value);	
+				$child->setAttribute('val', $key);			
+
+				$el->appendChild($child);
+			}
+			$xml->firstChild->appendChild($el);
+		}
+
 		return $xml;
 	}
 
