@@ -106,10 +106,14 @@ class ZohoComponent extends Component {
 	 * Insert a records.
 	 * You can use the insertRecords method to insert records into the required Zoho CRM module.
 	 *
+	 * @param  	  string $scope
+	 * @param 	  array  $data
+	 * @param 	  array  $params
+	 *
 	 * @see 	  https://www.zoho.com/crm/help/api/insertrecords.html
 	 * @return 	  array
 	 */
-	public function insertRecords($scope, $data) {
+	public function insertRecords($scope, $data, $params = array()) {
 		if (!$this->authToken) {
 			$this->_generateAuthToken();
 		}
@@ -118,12 +122,11 @@ class ZohoComponent extends Component {
 		}
 
 		$url = "{$this->apiUrls['crm']}{$scope}/insertRecords";
-		$xml = $this->_makeXMLDataToInsertRecords($scope, $data);
-		$params = array(
-			'authtoken' => $this->authToken, 
-			'xmlData' 	=> $xml->saveHTML()
-		);
-		
+		$xmlData = $this->_makeXMLDataToInsertRecords($scope, $data);
+
+		$_params = array('authtoken' => $this->authToken, 'xmlData' => $xmlData);
+		$params  = array_merge($params, $_params);
+
 		$request = $this->_makeRequest($url, $params, 'post');
 		if (!$request->isOk()) {
 			throw new CakeException('Invalid request.');
@@ -152,7 +155,7 @@ class ZohoComponent extends Component {
 	 *
 	 * @param string $scope
 	 * @param array  $data
-	 * @return DOMDocument
+	 * @return string
 	 */
 	protected function _makeXMLDataToInsertRecords($scope, $data) {
 		$xml = Xml::build("<{$scope}></{$scope}>", array('return' => 'domdocument'));
@@ -173,7 +176,7 @@ class ZohoComponent extends Component {
 			$xml->firstChild->appendChild($el);
 		}
 
-		return $xml;
+		return $xml->saveHTML();
 	}
 
 	/**
@@ -234,7 +237,7 @@ class ZohoComponent extends Component {
 		if (!in_array($method, array('get', 'post', 'put', 'delete'))) {
 			return false;
 		}
-
+		
 		return $this->Http->$method($url, http_build_query($params));
 	}
 
