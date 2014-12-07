@@ -103,18 +103,20 @@ class ZohoComponent extends Component {
 	}
 
 	/**
-	 * Insert a records.
+	 * Getter of my Records.
 	 * You can use the getMyRecords method to fetch data by the owner of the Authentication token specified in the API request.
 	 *
 	 * @param  	  string $scope
+	 * @param 	  array  $params
 	 *
 	 * @see 	  https://www.zoho.com/crm/help/api/getmyrecords.html
 	 * @return 	  array
 	 */
-	public function getMyRecords($scope) {
+	public function getMyRecords($scope, $params = array()) {
 
 		$url = $this->_makeUrl($scope, __FUNCTION__);
-		$params  = array('authtoken' => $this->authToken, 'scope' => 'crmapi');
+		$_params = array('authtoken' => $this->authToken, 'scope' => 'crmapi');]
+		$params  = array_merge($params, $_params);
 		$request = $this->_makeRequest($url, $params);
 
 		if (!$request->isOk()) {
