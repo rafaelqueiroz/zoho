@@ -43,11 +43,22 @@ class ZohoComponent extends Component {
 	protected $Http;
 
 	/**
+	 * Scopes available
+	 *
+	 * @var array
+	 */
+	protected $scopes = array(
+		'Leads', 'Contacts', 'Accounts', 'Potentials', 'Campaigns',
+		'Cases', 'Products', 'Vendors', 'Quotes', 'SalesOrders',
+		'PurchaseOrders', 'Invoices'
+	);
+
+	/**
 	 * Settings
 	 *
 	 * @var array
 	 */
-	public $settings = array();
+	public $settings = array();	
 
 	/**
 	 * Components
@@ -102,6 +113,9 @@ class ZohoComponent extends Component {
 		if (!$this->authToken) {
 			$this->_generateAuthToken();
 		}
+		if (!$this->_validateScopeInsertRecords($scope)) {
+			throw new CakeException('Invalid scope.');
+		}
 
 		$url = "{$this->apiUrls['crm']}{$scope}/insertRecords";
 		$xml = $this->_makeXMLDataToInsertRecords($scope, $data);
@@ -121,6 +135,16 @@ class ZohoComponent extends Component {
 		}
 
 		return $response['response'];
+	}
+
+	/**
+	 * Validate scope to insertRecords method
+	 *
+	 * @param string $scope
+	 * @return bool
+	 */
+	protected function _validateScopeInsertRecords($scope) {
+		return in_array($scope, $this->scopes);
 	}
 
 	/**
