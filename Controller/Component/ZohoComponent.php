@@ -179,7 +179,7 @@ class ZohoComponent extends Component {
 	 * @param  	  int    $id
 	 * @param 	  string $scope
 	 *
-	 * @see 	  https://www.zoho.com/crm/help/api/getrecords.html
+	 * @see 	  https://www.zoho.com/crm/help/api/getrecordbyid.html
 	 * @return 	  array
 	 */
 	public function getRecordById($id, $scope = 'Leads') {
@@ -247,6 +247,44 @@ class ZohoComponent extends Component {
 		}
 
 		return $response['response'];
+	}
+
+	/**
+	 * Update a records.
+	 * You can use the updateRecords method to update or modify the records in Zoho CRM.
+	 *
+	 * @param  	  string $scope
+	 * @param 	  array  $data
+	 * @param 	  array  $params
+	 *
+	 * @see 	  https://www.zoho.com/crm/help/api/updaterecords.html
+	 * @return 	  array
+	 */
+	public function updateRecords($scope, $data, $params = array()) {
+		if (!$this->authToken) {
+			$this->_generateAuthToken();
+		}
+		if (!$this->_validateScopeInsertRecords($scope)) {
+			throw new CakeException('Invalid scope.');
+		}
+
+		$url = $this->_makeUrl($scope, __FUNCTION__);
+		$xmlData = $this->_makeXMLDataToInsertRecords($scope, $data);
+
+		$_params = array('authtoken' => $this->authToken, 'xmlData' => $xmlData);
+		$params  = array_merge($params, $_params);
+
+		$request = $this->_makeRequest($url, $params, 'post');
+		if (!$request->isOk()) {
+			throw new CakeException('Invalid request.');
+		}
+
+		$response = $this->_parseRequest($request->body);
+		if (!empty ($response['response']['error'])) {
+			throw new CakeException($response['response']['error']['message']);
+		}
+
+		return $response['response'];		
 	}
 
 	/**
