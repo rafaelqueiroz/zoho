@@ -29,6 +29,13 @@ class ZohoComponent extends Component {
 	protected $authToken;
 
 	/**
+	 * Auto Token Session Key
+	 *
+	 * @var string
+	 */
+	protected $authTokenSessionKey = 'Zoho.authToken';
+
+	/**
 	 * HTTP Socket
 	 *
 	 * @var HttpSocket
@@ -41,6 +48,13 @@ class ZohoComponent extends Component {
 	 * @var array
 	 */
 	public $settings = array();
+
+	/**
+	 * Components
+	 *
+	 * @var array
+	 */
+	public $components = array('Session');
 
 	/**
 	 * Constructor
@@ -74,6 +88,7 @@ class ZohoComponent extends Component {
 		}
 
 		$this->Http = new HttpSocket();
+		$this->authToken = $this->Session->read($this->authTokenSessionKey);
 	}
 
 	/**
@@ -109,7 +124,7 @@ class ZohoComponent extends Component {
 	}
 
 	/**
-	 * Make XML to insertRecords Method
+	 * Make XML to insertRecords method
 	 *
 	 * @param string $scope
 	 * @param array  $data
@@ -128,7 +143,6 @@ class ZohoComponent extends Component {
 			$row->appendChild($child);
 		}
 		$xml->firstChild->appendChild($row);
-
 		return $xml;
 	}
 
@@ -159,6 +173,7 @@ class ZohoComponent extends Component {
 		}
 
 		$this->authToken = $authToken;
+		$this->Session->write($this->authTokenSessionKey, $this->authToken);
 	}
 
 	/**
@@ -175,6 +190,7 @@ class ZohoComponent extends Component {
 
 		return false;
 	}
+
 
 	/**
 	 * Make a Request.
